@@ -31,7 +31,7 @@ This command tells gcc to compile the file motor_gui.c and link it with the libr
 After compiling the program, you can run it with the following command:
 
 ```bash
-./motor_gui
+./steppingMotor
 ```
 
 Instructional for Mac Users
