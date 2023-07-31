@@ -78,9 +78,9 @@ The GUI of the program should now appear on your screen.
 
 Note: The steps above assume that you're using a bash or zsh shell. If you're using a different shell, you may need to adjust some of the commands.
 
-Also, please ensure that the USB device path (/dev/tty.usbserial-A601VOHX) is correct for your system. In MacOS, it is common for the path to be something like /dev/tty.usbmodemXXXX. The exact path can be found from the command `ls /dev/tty.*``.
+Also, please ensure that the USB device path (/dev/tty.usbserial-A601VOHX) is correct for your system. In MacOS, it is common for the path to be something like /dev/tty.usbmodemXXXX. The exact path can be found from the command `ls /dev/`.
 
-You can check this on a raspberry pi by typing `ls /dev/tty.*` while the motor is unplugged, then plugging the motor in and typing `ls /dev/tty.*` again and looking at the difference.
+You can check this on a raspberry pi by typing `ls /dev/` while the motor is unplugged, then plugging the motor in and typing `ls /dev/` again and looking at the difference.
 
 ## Usage
 The GUI has several buttons that you can use to control the motor:
