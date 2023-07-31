@@ -5,12 +5,14 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <termios.h>
+#include <stdlib.h>
+#include <math.h>
 
 int fd; // File descriptor for the port
 
 int open_port(void)
 {
-    fd = open("/dev/tty.usbserial-A601VOHX", O_RDWR | O_NOCTTY | O_NDELAY);
+    fd = open("/dev/ttyUSB0", O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1)
     {
         perror("open_port: Unable to open /dev/ttyUSB0 - ");
