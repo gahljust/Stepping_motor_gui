@@ -23,7 +23,7 @@ sudo apt install gcc libgtk-3-dev pkg-config
 After you have installed the required packages, you can compile the program using gcc:
 
 ```bash
-gcc `pkg-config --cflags gtk+-3.0` -o motor_gui motor_gui.c `pkg-config --libs gtk+-3.0`
+gcc `pkg-config --cflags gtk+-3.0` -o steppingMotor steppingMotor.c `pkg-config --libs gtk+-3.0`
 ```
 This command tells gcc to compile the file motor_gui.c and link it with the libraries used by GTK+3, creating an executable file called motor_gui.
 
@@ -55,8 +55,32 @@ brew install pkg-config
 Install the GCC compiler using Homebrew by entering:
 
 
-Please note that you might need to adjust the name and path of the serial port in the open_port function to match the port where your motor controller is connected.
-You can do this on a raspberry pi by typing `ls /dev` while the motor is unplugged, then plugging the motor in and typing `ls /dev` again and looking at the difference.
+```bash
+brew install gcc
+```
+
+## Step 4: Clone the Repository
+
+## Step 5: Compile the Program
+Navigate to the repository directory and compile the source code. Replace <source_file> with the name of your C file:
+
+```bash
+gcc `pkg-config --cflags gtk+-3.0` -o steppingMotor steppingMotor.c `pkg-config --libs gtk+-3.0`
+```
+
+## Step 6: Run the Program
+
+```bash
+./steppingMotor
+```
+
+The GUI of the program should now appear on your screen.
+
+Note: The steps above assume that you're using a bash or zsh shell. If you're using a different shell, you may need to adjust some of the commands.
+
+Also, please ensure that the USB device path (/dev/tty.usbserial-A601VOHX) is correct for your system. In MacOS, it is common for the path to be something like /dev/tty.usbmodemXXXX. The exact path can be found from the command `ls /dev/tty.*``.
+
+You can check this on a raspberry pi by typing `ls /dev/tty.*` while the motor is unplugged, then plugging the motor in and typing `ls /dev/tty.*` again and looking at the difference.
 
 ## Usage
 The GUI has several buttons that you can use to control the motor:
