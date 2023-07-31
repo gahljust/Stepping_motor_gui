@@ -87,7 +87,7 @@ static void move_closer_button_clicked_cb(GtkWidget *button, gpointer data)
 
 static void home_button_clicked_cb(GtkWidget *button, gpointer data)
 {
-    send_command(fd, "I1M0, R");
+    send_command(fd, "C I1M0, R");
 }
 
 static void set_zero_button_clicked_cb(GtkWidget *button, gpointer data)
