@@ -15,7 +15,7 @@ int open_port(void)
     fd = open("/dev/ttyUSB0", O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd == -1)
     {
-        perror("open_port: Unable to open /dev/ttyUSB0 - ");
+        perror("open_port: Unable to open USB port - ");
     }
     else
     {
@@ -58,15 +58,14 @@ static void move_button_clicked_cb(GtkWidget *button, gpointer data)
     const char *distance_str = gtk_entry_get_text(GTK_ENTRY(distance_entry));
     double distance = strtod(distance_str, NULL); // Convert the string to a double
     // Convert the distance to steps by dividing by 0.0025 and rounding to the nearest integer
-    int steps = (int)((distance / 0.0025 + 0.5));                
+    int steps = (int)((distance / 0.0025 + 0.5));
     char command[32];
-    sprintf(command, "C I1M-%d, R", steps); 
+    sprintf(command, "C I1M-%d, R", steps);
     // print the steps to the terminal
     printf("Steps: %d\n", steps);
     printf("Command: %s\n", command);
     send_command(fd, command);
     sleep(1);
-   
 }
 
 // Function to handle the "Move" button click
@@ -121,12 +120,10 @@ static void status_button_clicked_cb(GtkWidget *button, gpointer data)
             strcpy(buffer, "Jog");
         }
 
-
-        char label_text[64];                                       // Enough space for prefix and position value
-        sprintf(label_text, "Motor Status: %s", buffer);   // Create the new label text with two decimal places
+        char label_text[64];                                     // Enough space for prefix and position value
+        sprintf(label_text, "Motor Status: %s", buffer);         // Create the new label text with two decimal places
         gtk_label_set_text(GTK_LABEL(status_label), label_text); // Set the new label text
     }
-
 }
 
 static void get_position_button_clicked_cb(GtkWidget *button, gpointer data)
@@ -165,6 +162,69 @@ static void close_port_clicked(void)
     close(fd);
 }
 
+gboolean prompt_set_motor_home_on_start(void)
+{
+    // Load the CSS style
+    GtkCssProvider *provider;
+    GdkDisplay *display;
+    GdkScreen *screen;
+    display = gdk_display_get_default();
+    screen = gdk_display_get_default_screen(display);
+    provider = gtk_css_provider_new();
+    gtk_style_context_add_provider_for_screen(screen, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    const gchar *css_style = "dialog { background-color: #ADD8E6; }";
+    gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider), css_style, -1, NULL);
+    g_object_unref(provider);
+
+    GtkWidget *dialog = gtk_dialog_new_with_buttons(
+        "Motor Controller",
+        NULL,
+        GTK_DIALOG_MODAL,
+        "_Yes", GTK_RESPONSE_YES,
+        "_No", GTK_RESPONSE_NO,
+        NULL);
+
+    GtkWidget *label = gtk_label_new("Do you want to set the Motor to Home on start?");
+    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    gtk_container_add(GTK_CONTAINER(content_area), label);
+    gtk_widget_show_all(dialog);
+
+    gint result = gtk_dialog_run(GTK_DIALOG(dialog));
+    switch (result)
+    {
+    case GTK_RESPONSE_YES:
+        // Handle the Yes button being pressed
+        break;
+    case GTK_RESPONSE_NO:
+        // Handle the No button being pressed
+        break;
+    default:
+        // Handle other cases if needed
+        break;
+    }
+
+    gtk_widget_destroy(dialog);
+
+    return (result == GTK_RESPONSE_YES);
+}
+
+static gboolean update_gui_callback(gpointer data)
+{
+    // Safely update your GUI here.
+    // For example, if you need to update a label, progress bar, etc.
+    // This runs in the main GTK thread.
+    return G_SOURCE_REMOVE; // Ensures this function is only called once.
+}
+
+void long_running_task()
+{
+    online_button_clicked_cb(NULL, NULL);
+    home_button_clicked_cb(NULL, NULL);
+
+    // Once done, queue a function to update the GUI.
+    g_idle_add(update_gui_callback, NULL);
+}
+
 int main(int argc, char **argv)
 {
     gtk_init(&argc, &argv);
@@ -195,6 +255,13 @@ int main(int argc, char **argv)
     {
         printf("Error from tcsetattr: %s\n", strerror(errno));
         return -1;
+    }
+
+    // prompt_set_motor_home_on_start();
+    if (prompt_set_motor_home_on_start())
+    {
+        // Start the blocking tasks in a separate thread.
+        g_thread_new("long_task_thread", (GThreadFunc)long_running_task, NULL);
     }
 
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -262,11 +329,9 @@ int main(int argc, char **argv)
 
     position_label = gtk_label_new("Position (mm): ");
     gtk_box_pack_start(GTK_BOX(display_box), position_label, FALSE, FALSE, 0);
-   
 
     status_label = gtk_label_new("Motor Status: ");
     gtk_box_pack_start(GTK_BOX(display_box), status_label, FALSE, FALSE, 0);
-   
 
     GtkWidget *display_frame = gtk_frame_new("Display");
     gtk_container_add(GTK_CONTAINER(display_frame), display_box);
